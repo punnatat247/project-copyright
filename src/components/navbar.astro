@@ -1,0 +1,88 @@
+---
+import { createClient } from "@supabase/supabase-js";
+
+// 2. ดึงรหัสกุญแจเข้าบ้าน (Database) จากไฟล์ .env
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+// 3. สร้างตัวเชื่อมต่อเพื่อเตรียมคุยกับ Database
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+// 4. ฟังก์ชันสำหรับดึงข้อมูลจากตาราง "categories"
+const { data: categories, error } = await supabase
+  .from("categories")
+  .select("category_id, category_name")
+  .order("category_id", { ascending: true }); // เรียงตาม id จากน้อยไปมาก
+
+const { pathname } = Astro.url;
+
+const isHome = pathname === "/";
+const isShop = pathname.startsWith("/shop");
+
+---
+
+<div class="flex p-3 bg-gray-100 mx-auto justify-center gap-10 drop-shadow-sm">
+    
+    <div>
+        <a href="/" class={`text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium ${isHome ? 'border-b-2 border-blue-500 rounded-b-none' : 'text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium'}`}>หน้าแรก</a>
+    </div>
+    
+    <div id="menu" class="relative group">
+        <button class="hover:text-gray-900  rounded-md text-blue-950 font-medium cursor-pointer">หมวดหมู่</button>
+
+        <div class="grid grid-cols-3 absolute hidden group-hover:grid bg-white shadow-lg rounded-md text-blue-950 w-max z-50">
+        {categories?.map((category) => (
+          <a href={`/categories/${category.category_id}`} class="grid text-sm p-4 m-2 hover:bg-gray-100 text-center">
+            {category.category_name}
+          </a>
+        ))}
+        </div>
+    
+    </div>
+
+    <div>
+        <a href="/shop" class={`text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium ${isShop ? 'border-b-2 border-blue-500 rounded-b-none' : 'text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium'}`}>สินค้าทั้งหมด</a>
+    </div>
+
+    <div id="menu" class="relative group">
+        <button class="hover:text-gray-900  rounded-md text-blue-950 font-medium cursor-pointer">ติดต่อเรา</button>
+
+        <!-- เพิ่มลิ้ง facebook  instagram email line tel. -->
+        <div class="absolute hidden group-hover:block bg-white shadow-lg rounded-md text-blue-950 w-max ">
+            <a href="https://www.facebook.com/cjphotoframe" target="_blank" class="block text-blue-950  font-medium p-3 hover:bg-gray-100 px-4">
+                <i class="fab fa-facebook text-blue-500 text-xl"></i> กรอบรูป ซีเจโฟโต้เฟรม
+            </a>
+
+            <a href="https://www.instagram.com/cjphotoframe_np/" target="_blank" class="block text-blue-950  font-medium p-3 hover:bg-gray-100 px-4">
+                <i class="fab fa-instagram text-xl"></i> cjphotoframe_np
+            </a>
+
+            <a href="mailto:cjphotoframe_np@hotmail.com" class="block text-blue-950  font-medium p-3 hover:bg-gray-100 px-4">
+                <i class="fas fa-envelope"></i> cjphotoframe_np@hotmail.com
+            </a>
+
+            <a href="https://line.me/ti/p/TDHo33Y3UN" target="_blank" class="block text-blue-950  font-medium p-3 hover:bg-gray-100 px-4">
+                <i class="fab fa-line text-green-500 text-xl"></i> ID: 0818199302
+            </a>
+            
+            <a href="tel:0818199302" class="block text-blue-950  font-medium p-3 hover:bg-gray-100 px-4">
+                <i class="fas fa-phone"></i> 081-819-9302
+            </a>
+        </div>
+    </div>
+
+</div>
+
+
+<style is:global>
+  /* แปลไทย: "ถ้าตัว body ตรวจเจอว่ามีไอดี #category-menu กำลังโดนเมาส์ชี้อยู่" 
+     ให้สร้างแผ่นฟิล์มดำเคลือบหน้าจอขึ้นมาทันที! */
+  body:has(#menu:hover)::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.05); /* สีดำโปร่งแสง 50% */
+    z-index: 40;          /* เลข 40 จะอยู่ใต้เมนูขาวของคุณพอดี แต่ทับเนื้อหาเว็บทั้งหมด */
+    pointer-events: none; /* ยอมให้เมาส์ทะลุผ่านได้ ไม่ขัดขวางการกดคลิกบนหน้าเว็บ */
+  }
+</style>

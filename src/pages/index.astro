@@ -1,11 +1,70 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import MainLayout from "../layouts/navLayout.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import { createClient } from "@supabase/supabase-js";
+
+//  ดึงรหัสกุญแจเข้าบ้าน (Database) จากไฟล์ .env
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+
+//  สร้างตัวเชื่อมต่อเพื่อเตรียมคุยกับ Database
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+//  ฟังก์ชันสำหรับดึงข้อมูลจากตาราง "categories"
+const { data: recommendProducts, error } = await supabase
+  .from("products")
+  .select(
+    "product_id, name, recommend, product_choices ( choice_name, price, image )",
+  )
+  .eq("recommend", true);
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<MainLayout title="Home">
+  <div class="bg-blue-100 w-full h-80 flex items-center justify-center">
+    <div class="w-full h-80 flex justify-center items-baseline-last">
+      <img src="/banner.png" alt="Banner" class="h-70 rounded-xl" />
+    </div>
+  </div>
+
+  <p class="text-3xl text-center p-6 text-blue-950">สินค้าแนะนำ</p>
+
+      
+        {recommendProducts?.map((product) => {
+          const choices = product.product_choices || [];
+          const cheapestChoice = choices.reduce((min, current) => {
+            return current.price < min.price ? current : min;
+          }, choices[0]);
+          return (
+              <div class="grid grid-cols-4 gap-4 max-w-4/6 mx-auto pb-10">
+              <div class="bg-blue-100 rounded-lg">
+                <div class=" mx-auto p-4">
+                  {cheapestChoice ? (
+                    <img src={cheapestChoice.image} alt={product.name}  class="rounded-lg mx-auto flex items-center justify-center"/>
+                  ) : (
+                    <div>ไม่มีรูปภาพ</div>
+                  )}
+                  <p class="text-md text-blue-950 pt-4"> {product.name} </p>
+
+                  {cheapestChoice && (
+                    <div>
+                      <p class="text-md text-blue-950 pt-3">เริ่มต้น ฿{cheapestChoice.price}</p>
+                    </div>
+                  )}
+
+                  <div>
+                    <button id="add-btn" type="button" onclick="alert('เพิ่มตะกร้าแล้ว')" class="cursor-pointer bg-blue-700 hover:bg-blue-800 w-full text-white p-1 rounded-lg mt-3 ">เพิ่มลงตะกร้าสินค้า</button>
+                  </div>
+                </div>
+              </div>
+              </div>
+          )
+        })}
+      </div>
+
+  {recommendProducts && recommendProducts.length === 0 && (
+    <div class="col-span-full text-center py-12 ">
+      <p class="text-gray-400 font-medium">ไม่มีสินค้าแนะนำ</p>
+    </div>
+  )}
+  </>
+</MainLayout>

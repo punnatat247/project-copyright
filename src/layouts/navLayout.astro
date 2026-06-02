@@ -1,0 +1,25 @@
+---
+import Header from '../components/header.astro';
+import Navbar from '../components/navbar.astro';
+const { title } = Astro.props;
+import '../styles/global.css';
+
+
+---
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="icon" type="image/png" href="/web-icon.png">
+    <title> {title} | CJ PHOTOFRAME</title>
+</head>
+<body>
+        <Header />
+        <Navbar />
+        
+    <main>
+        <slot />
+    </main>
+</body>
+</html>

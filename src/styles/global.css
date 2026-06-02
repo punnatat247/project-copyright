@@ -1,0 +1,9 @@
+/* ไฟล์ src/styles/global.css */
+@import "tailwindcss";
+
+/* 🌟 ฝังลิงก์ Google Fonts ไว้ในไฟล์ CSS นี้ที่เดียวจบเลย! */
+@import url('https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;700&display=swap');
+
+@theme {
+    --font-sans: 'Prompt', sans-serif;
+}
