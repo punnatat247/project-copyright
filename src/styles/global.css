@@ -6,4 +6,7 @@
 
 @theme {
     --font-sans: 'Prompt', sans-serif;
+
+    --color-cj-blue-200 : #4A6EB0;
+    --color-cj-blue-100 : #6a8dcc;
 }

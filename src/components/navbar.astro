@@ -21,10 +21,10 @@ const isShop = pathname.startsWith("/shop");
 
 ---
 
-<div class="flex p-3 bg-gray-100 mx-auto justify-center gap-10 drop-shadow-sm">
+<div class="flex p-3 bg-white mx-auto justify-center gap-10 drop-shadow-sm">
     
     <div>
-        <a href="/" class={`text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium ${isHome ? 'border-b-2 border-blue-500 rounded-b-none' : 'text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium'}`}>หน้าแรก</a>
+        <a href="/" class={` hover:text-gray-900 px-3 py-2 rounded-md font-medium ${isHome ? 'border-b-2 border-blue-500 rounded-b-none text-blue-500' : 'text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium'}`}>หน้าแรก</a>
     </div>
     
     <div id="menu" class="relative group">
@@ -41,7 +41,7 @@ const isShop = pathname.startsWith("/shop");
     </div>
 
     <div>
-        <a href="/shop" class={`text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium ${isShop ? 'border-b-2 border-blue-500 rounded-b-none' : 'text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium'}`}>สินค้าทั้งหมด</a>
+        <a href="/shop" class={`hover:text-gray-900 px-3 py-2 rounded-md font-medium ${isShop ? 'border-b-2 border-blue-500 rounded-b-none text-blue-500' : 'text-blue-950 hover:text-gray-900 px-3 py-2 rounded-md font-medium'}`}>สินค้าทั้งหมด</a>
     </div>
 
     <div id="menu" class="relative group">
