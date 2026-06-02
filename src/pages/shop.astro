@@ -1,19 +1,129 @@
 ---
+import MainLayout from "../layouts/navLayout.astro";
+import { createClient } from "@supabase/supabase-js";
 
-import MainLayout from '../layouts/navLayout.astro';
+// ดึงรหัสกุญแจเข้าบ้าน (Database) จากไฟล์ .env
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
 
+// สร้างตัวเชื่อมต่อเพื่อเตรียมคุยกับ Database
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const { data: categories, error } = await supabase
+  .from("categories")
+  .select(
+    `
+    category_id,
+    category_name,
+    products (
+      product_id,
+      name,
+      recommend,
+      product_choices (
+        choice_name,
+        price,
+        image
+      )
+    )
+  `,
+  )
+  .order("category_id", { ascending: true });
+
+if (error) {
+  console.error("เกิดข้อผิดพลาดในการดึงข้อมูล:", error.message);
+}
 ---
-<!DOCTYPE html>
-<html lang="th">
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-</head>
-<body>
-	
-	<MainLayout title="Shop">
-	
-	</MainLayout>
-</body>
-</html>
+
+<MainLayout title="Shop">
+  <section class="flex max-w-7xl mx-auto px-4 gap-8 py-10">
+    
+    <aside class="bg-white w-64 h-fit rounded-lg sticky top-6 shadow-sm flex-shrink-0">
+      <h1 class="text-xl font-bold text-blue-950 mx-auto text-center p-4">
+        ประเภทสินค้า
+      </h1>
+
+      <div class="p-2">
+        {
+          categories?.map((category) => (
+            <a
+              href={`#category-${category.category_id}`}
+              class="nav-link relative grid text-sm p-4 mb-1 hover:bg-gray-100 rounded-lg text-blue-950"
+            >
+              {category.category_name}
+              <span class="absolute bottom-1 left-4 right-4 h-0.5 bg-blue-500 transform scale-x-0 opacity-0 transition-all duration-300 origin-center" />
+            </a>
+          ))
+        }
+      </div>
+    </aside>
+
+    {/* 📌 ฝั่งขวา: ปรับให้ขยายเต็มพื้นที่ที่เหลือ (flex-grow) และเอา mr-40 ออก */}
+    <div class="flex-grow h-full text-center">
+      {
+        categories?.map((category) => (
+          <section id={`category-${category.category_id}`} class="scroll-mt-24 mb-8 bg-white p-6 rounded-xl text-center shadow-sm border border-gray-50">
+            <h2 class="pb-5 font-bold text-xl text-blue-950 text-left border-b mb-5 border-gray-100">{category.category_name}</h2>
+
+            {/* 🌟 ปรับปรุง: เปลี่ยนจาก w-4/5 เป็น w-full เพื่อให้กล่องสินค้าขยายได้เต็มที่กว้างๆ ครับ */}
+            <div class="grid grid-cols-4 gap-4 w-full mx-auto">
+              {category.products?.map((product) => {
+                const choices = product.product_choices || [];
+                const cheapestChoice = choices.reduce((min, current) => {
+                  return current.price < min.price ? current : min;
+                }, choices[0]);
+
+                return (
+                  // 🌟 ปรับปรุง: เอา p-4 ตัวนอกออก เพื่อให้รูปวิ่งไปชนขอบการ์ด และเติม overflow-hidden เพื่อให้มุมรูปโค้งตามการ์ด
+                  <a href="/detail" class="bg-blue-100 rounded-xl p-2 flex flex-col h-full cursor-pointer hover:shadow-md transition-shadow text-left overflow-hidden">
+                    
+                    {cheapestChoice ? (
+                      <img
+                        src={cheapestChoice.image}
+                        alt={product.name}
+                        class="rounded-lg mx-auto flex items-center justify-center w-full h-48 object-cover" 
+                      />
+                    ) : (
+                      <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
+                        ไม่มีรูปภาพ
+                      </div>
+                    )}
+                    
+                    <div class="p-4 flex flex-col flex-grow">
+                      {/* ชื่อสินค้า */}
+                      <p class="text-sm text-blue-950 font-semibold line-clamp-2 min-h-[40px]">
+                        {product.name}
+                      </p>
+
+                      {/* ราคาสินค้า */}
+                      {cheapestChoice && (
+                        <div class="mt-auto pt-3">
+                          <p class="text-md text-blue-700 font-bold">
+                            เริ่มต้น ฿{cheapestChoice.price}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                  </a>
+                );
+              })}
+              
+              {/* ตรวจจับหมวดหมู่ว่างเปล่า */}
+              {(!category.products || category.products.length === 0) && (
+                <p class="text-sm text-gray-400 italic col-span-full py-4 text-center">
+                  ยังไม่มีสินค้าในหมวดหมู่นี้
+                </p>
+              )}
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+</MainLayout>
+
+<style is:global>
+  body {
+    background-color: oklch(93.2% 0.032 255.585); 
+  }
+</style>

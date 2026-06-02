@@ -32,7 +32,7 @@ const isShop = pathname.startsWith("/shop");
 
         <div class="grid grid-cols-3 absolute hidden group-hover:grid bg-white shadow-lg rounded-md text-blue-950 w-max z-50">
         {categories?.map((category) => (
-          <a href={`/categories/${category.category_id}`} class="grid text-sm p-4 m-2 hover:bg-gray-100 text-center">
+          <a href={`/shop#category-${category.category_id}`} class="grid text-sm p-4 m-2 hover:bg-gray-100 text-center">
             {category.category_name}
           </a>
         ))}
