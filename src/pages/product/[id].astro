@@ -1,0 +1,57 @@
+---
+import MainLayout from "../../layouts/navLayout.astro";
+import { createClient } from "@supabase/supabase-js";
+
+// 🌟 1. เพิ่มฟังก์ชัน getStaticPaths: เพื่อดึง ID สินค้าทั้งหมดมาให้ Astro รู้จักล่วงหน้า
+export async function getStaticPaths() {
+  const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+  const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+  // กวาด product_id ทั้งหมดจาก Database
+  const { data: products } = await supabase.from("products").select("product_id");
+
+  // ส่ง ID ทั้งหมดไปบอก Astro ว่าให้เตรียมสร้างหน้าเว็บเหล่านี้นะ
+  return products?.map((product) => ({
+    params: { id: product.product_id.toString() },
+  })) || [];
+}
+
+// 🌟 2. รับค่า ID และดึงข้อมูลสินค้าชิ้นนั้น (เหมือนเดิม)
+const { id } = Astro.params;
+
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const { data: product, error } = await supabase
+  .from("products")
+  .select(`
+    *,
+    categories ( category_name ),
+    product_choices ( choice_name, price, image )
+  `)
+  .eq("product_id", id)
+  .single();
+
+if (error) console.error("หาข้อมูลไม่เจอ:", error.message);
+
+// ดึงตัวเลือกแรกมาเป็นค่าเริ่มต้น
+const defaultChoice = product?.product_choices?.[0];
+---
+
+<MainLayout title={product?.name || "รายละเอียดสินค้า"}>
+
+    <div class="flex text-sm text-gray-500 items-center">
+        <a href="/shop" class="hover hover:text-blue-500">สินค้าทั้งหมด</a>
+        <i class="fas fa-angle-right px-5 h-full text-gray-300"></i>
+        <p class="">{product.name}</p>
+    </div>
+
+    <div>
+
+        
+
+    </div>
+
+</MainLayout>

@@ -22,7 +22,8 @@ const { data: categories, error } = await supabase
       product_choices (
         choice_name,
         price,
-        image
+        image,
+        stock
       )
     )
   `,
@@ -37,7 +38,9 @@ if (error) {
 <MainLayout title="Shop">
   <section class="flex max-w-7xl mx-auto px-4 gap-8 py-10">
     
-    <aside class="bg-white w-64 h-fit rounded-lg sticky top-6 shadow-sm flex-shrink-0">
+
+    <!-- ฝั่งขวาที่บอกประเภทสินค้า -->
+    <aside class="bg-white w-1/2 h-full rounded-lg sticky top-6 shadow-sm ">
       <h1 class="text-xl font-bold text-blue-950 mx-auto text-center p-4">
         ประเภทสินค้า
       </h1>
@@ -57,14 +60,14 @@ if (error) {
       </div>
     </aside>
 
-    {/* 📌 ฝั่งขวา: ปรับให้ขยายเต็มพื้นที่ที่เหลือ (flex-grow) และเอา mr-40 ออก */}
-    <div class="flex-grow h-full text-center">
+    {/* หน้าแสดงสินค้า */}
+    <div class=" h-full text-center">
       {
         categories?.map((category) => (
           <section id={`category-${category.category_id}`} class="scroll-mt-24 mb-8 bg-white p-6 rounded-xl text-center shadow-sm border border-gray-50">
             <h2 class="pb-5 font-bold text-xl text-blue-950 text-left border-b mb-5 border-gray-100">{category.category_name}</h2>
 
-            {/* 🌟 ปรับปรุง: เปลี่ยนจาก w-4/5 เป็น w-full เพื่อให้กล่องสินค้าขยายได้เต็มที่กว้างๆ ครับ */}
+            {/* 🌟 การ์ดสินค้า */}
             <div class="grid grid-cols-4 gap-4 w-full mx-auto">
               {category.products?.map((product) => {
                 const choices = product.product_choices || [];
@@ -73,14 +76,13 @@ if (error) {
                 }, choices[0]);
 
                 return (
-                  // 🌟 ปรับปรุง: เอา p-4 ตัวนอกออก เพื่อให้รูปวิ่งไปชนขอบการ์ด และเติม overflow-hidden เพื่อให้มุมรูปโค้งตามการ์ด
-                  <a href="/detail" class="bg-blue-100 rounded-xl p-2 flex flex-col h-full cursor-pointer hover:shadow-md transition-shadow text-left overflow-hidden">
+                  <a href={`/product/${product.product_id}`} class="bg-cj-gray-100 rounded-xl p-2 flex flex-col h-full cursor-pointer text-left overflow-hidden">
                     
                     {cheapestChoice ? (
                       <img
                         src={cheapestChoice.image}
                         alt={product.name}
-                        class="rounded-lg mx-auto flex items-center justify-center w-full h-48 object-cover" 
+                        class="rounded-lg mx-auto flex items-center justify-center w-full h-48 object-cover"
                       />
                     ) : (
                       <div class="w-full h-48 bg-gray-200 flex items-center justify-center text-gray-400 text-xs">
@@ -88,7 +90,7 @@ if (error) {
                       </div>
                     )}
                     
-                    <div class="p-4 flex flex-col flex-grow">
+                    <div class="p-2 flex flex-col flex-grow">
                       {/* ชื่อสินค้า */}
                       <p class="text-sm text-blue-950 font-semibold line-clamp-2 min-h-[40px]">
                         {product.name}
@@ -96,8 +98,8 @@ if (error) {
 
                       {/* ราคาสินค้า */}
                       {cheapestChoice && (
-                        <div class="mt-auto pt-3">
-                          <p class="text-md text-blue-700 font-bold">
+                        <div class="">
+                          <p class="text-md text-blue-700 font-bold ">
                             เริ่มต้น ฿{cheapestChoice.price}
                           </p>
                         </div>
